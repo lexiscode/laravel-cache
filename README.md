@@ -175,19 +175,19 @@ public function definition()
 }
 ```
 
-Before you can run tinker to run your factory, you got to make sure that you migrate your tables and create a new user, since ```user_id``` is already been set to 1.
+Before you can run tinker to run your factory, you got to make sure that you migrate your tables and create a new user (you can simply use the register/login ui you created automatically with npm), since ```user_id``` is already been set to 1.
 
 The next step is to run our factory through tinker.
 ```
 php artisan tinker
 ```
 
-In here, we got to make sure that we call our model, chain the count method of and pass in an integer of the amount of rows we’d like to create, and chain the create method to finish it off.
+In here, we got to make sure that we call our model, chain the count method and pass in an integer of the amount of rows we’d like to create, and chain the create method to finish it off.
 ```
 App\Models\Post:factory()->count(1000)->create();
 ```
 
-The output should be 1000 new rows inside your database. We got to make srue that we have an event and listener setup because it will fetch data from Laravels cache.
+The output should be 1000 new rows inside your database. We got to make sure that we have an event and listener setup because it will fetch data from Laravels cache.
 ```
 php artisan make:event PostCreated
 php artisan make:listener PostCacheListener
@@ -202,16 +202,16 @@ public function handle($event)
     Cache::forever('posts', Post::all());
 }
 ```
-We got to make sure that we remove the cache, even when it hasn’t been set. Then, we got to make sure that we create a new cache which will last forever. The values will be grabbed from the Post model.
+Notice that we have to make sure that we remove the cache, even when it hasn’t been set. Then, we have to make sure that we create a new cache which will last forever. The values will be grabbed from the Post model.
 
-We got to make sure that we hook our event into our model, which can easily be done with the property ```$dispatchesEvents``` in the ```Post``` model.
+We have to make sure that we hook our event into our model, which can easily be done with the property ```$dispatchesEvents``` in the ```Post``` model.
 ```ruby
 protected $dispatchesEvents = [
     'created' => PostCreated::class
 ];
 ```
 
-When using Events and Listeners, you got to make sure that you register them inside the ```/app/Providers/EventServiceProvider.php``` file, in the property ```protected $listen```
+Then recall that when using Events and Listeners, you have to make sure that you register them inside the ```/app/Providers/EventServiceProvider.php``` file, in the property ```protected $listen```
 ```ruby
 protected $listen = [
     Registered::class => [
@@ -223,7 +223,7 @@ protected $listen = [
 ];
 ```
 
-We’re almost done. We got to make sure that we dispatch the event, then get all posts and put it inside the cache inside our ```\app\Controllers\PostController.php``` file.
+We’re almost done. We've got to make sure that we dispatch the event, then get all posts and put it inside the cache inside our ```\app\Controllers\PostController.php``` file.
 ```ruby
 public function index()
 {
@@ -245,4 +245,4 @@ Route::get('/blog', [PostController::class, 'index']);
 
 If we navigate to the browser and change our endpoint to ```/blog```, the ```/resources/views/blog/index.blade.php``` file is being called, but the most important thing is the cache folder that has been created inside the ```/storage/framework/cache/data``` folder.
 
-Right here, you’ll find a big JSON file which holds all posts inside that me as the user, has fetched.
+Right here, you’ll find a big JSON file which holds all posts inside that me as the user, has fetched. Thank you! :))
