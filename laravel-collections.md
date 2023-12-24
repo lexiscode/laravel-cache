@@ -1,21 +1,6 @@
-## My 12 Favorite Laravel Collection Methods
+## My Favorite Laravel Collection Methods
 
-The following documentation is based on my [Laravel’s Collections](https://www.youtube.com/watch?v=TuaeFeTVFHk) tutorial where I’ll show the most used Laravel Collections methods. When working with Eloquent, your data will always result in a custom collection object, which is a class that is inherited from the Laravel Collections. It provides a lot of [awesome methods]( https://laravel.com/docs/8.x/collections#available-methods) that you can chain into your collection. <br> <br>
-•	Author: Code With Dary <br>
-•	Twitter: [@codewithdary](https://twitter.com/codewithdary) <br>
-•	Instagram: [@codewithdary](https://www.instagram.com/codewithdary/) <br>
-
-## Usage <br>
-Setup the repository <br>
-```
-git clone git@github.com:codewithdary/laravel-collections.git
-cd laravel-collections
-Composer install
-cp .env.example .env 
-php artisan key:generate
-php artisan cache:clear && php artisan config:clear 
-php artisan serve 
-```
+In Laravel, collections are a powerful way to work with arrays of data. Collections provide a convenient and fluent interface for working with arrays, making it easier to perform common tasks such as filtering, mapping, and reducing. Laravel's collection class extends the base PHP Illuminate\Support\Collection class, adding additional methods for common operations.
 
 ## Database Setup <br>
 
@@ -290,7 +275,21 @@ Output
 ```
 
 ## 10. each()
-Here comes the section with a bit more complex methods. The each() method is nothing more than a foreach loop that is wrapper inside a higher order function. A higher order function is a function that takes another function as a parameter, returns a function, or does both
+Here comes the section with a bit more complex methods. The each() method is nothing more than a foreach loop that is wrapper inside a higher order function. A higher order function is a function that takes another function as a parameter, returns a function, or does both. The each() method is used for iterating over the items in the collection and applying a callback function to each item. However, it doesn't modify the items or create a new collection; it's mainly used for side effects (like printing, logging, etc.).
+
+Basic example below:
+
+```ruby
+$collection = collect([1, 2, 3, 4, 5]);
+
+$collection->each(function ($item) {
+    echo $item . ' ';
+});
+
+// Output: 1 2 3 4 5
+```
+
+Database example below:
 
 ```ruby
 public function index()
@@ -303,7 +302,6 @@ public function index()
         echo $user . ' | ';
     });
 }
-
 
 Output
 Prof. Marc Mueller DVM | Caesar Hammes | Devan Mertz | Mrs. Claudie O'Reilly | Mrs. Kenya McLaughlin Sr. | Melba Sauer III | Arlo Ullrich |
@@ -328,27 +326,19 @@ public function index()
 The biggest difference is the fact that we are hiding the implementation of the foreach loop. Why would you define an empty array above your loop, set it equal to a value inside the loop, and then print it returning it outside of the loop?
 
 ## 11. map()
-The map() method iterates through the ```$users``` collection and passes each value to the given callback
+The map() method iterates through the ```$users``` collection and passes each value to the given callback. The map method is used for transforming each item in the collection and constructing a new collection with the transformed values. It returns a new collection containing the results of applying a callback function to each item.
+
+Basic example below:
 
 ```ruby
-public function index()
-{
-    $users = User::all();
-    
-    $users->map(function ($item, $key){
-        print_r($item['name']);
-    });
-}
+$collection = collect([1, 2, 3, 4, 5]);
 
+$doubled = $collection->map(function ($item) {
+    return $item * 2;
+});
 
-Output
-Prof. Marc Mueller DVM Caesar Hammes Devan MertzMrs. Claudie O'Reilly Mrs. Kenya McLaughlin Sr. Melba Sauer III Arlo Ullrich
+// $doubled is a new collection: [2, 4, 6, 8, 10]
 ```
-When should you be using the map method?<br>
-•	When you want to extract a field from an array of object<br>
-•	Populating an array of objects from raw data <br>
-•	Converting items into a new format <br>
-
 
 ## 12. filter()
 The filter() method is used to filter out elements of an array that you don’t want. You got to tell the filter which elements you want to keep by passing a callback that returns true if you want to keep the element, and false if you want to remove it
@@ -365,7 +355,6 @@ public function index()
     return $filtered->all();
 }
 
-
 Output
 The last two users inside your ```$users``` collection
 ```
@@ -380,7 +369,6 @@ public function index()
 
     return $users->pluck('name');
 }
-
 
 Output
 (
@@ -442,7 +430,6 @@ public function index()
             ->skip(45);
 }
 
-
 Output
         (
             [45] => Kaleigh Gorczany
@@ -459,5 +446,46 @@ Alright, let’s go over the methods we chained together <br>
 •	skip() skips the first 45 rows<br>
 
 
-# Credits due where credits due…
-Thanks to [Laravel](https://laravel.com/) for giving me the opportunity to make this tutorial on [Collections](https://laravel.com/docs/8.x/collections)
+### Here are some extra key features and aspects of collections in Laravel:
+
+1. **Fluent Syntax:** Collections allow you to chain methods together in a fluent syntax, making your code more readable and expressive. This is achieved through method chaining.
+
+   ```php
+   $collection = collect([1, 2, 3, 4, 5]);
+
+   $result = $collection
+       ->filter(function ($value) {
+           return $value > 2;
+       })
+       ->map(function ($value) {
+           return $value * 2;
+       })
+       ->all();
+
+   // $result is [6, 8, 10]
+   ```
+
+2. **Powerful Methods:** Laravel collections provide a wide range of methods for common operations like filtering, mapping, transforming, reducing, and more. These methods make it easy to manipulate array data in a concise and expressive way.
+
+   ```php
+   $collection = collect([1, 2, 3, 4, 5]);
+
+   $sum = $collection->sum(); // 15
+   ```
+
+4. **Lazy Collections:** Laravel collections can be lazy, meaning the evaluation of a collection is deferred until the result is actually needed. This can lead to improved performance in certain scenarios.
+
+   ```php
+   $collection = collect([1, 2, 3, 4, 5]);
+
+   $filtered = $collection->filter(fn($item) => $item > 2);
+
+   // At this point, the filtering has not happened yet
+
+   $result = $filtered->all();
+
+   // Now the filtering is executed, and $result is [3, 4, 5]
+   ```
+
+Collections are an integral part of Laravel and are frequently used when dealing with sets of data. They provide a clean and expressive way to handle array operations in your application.
+
