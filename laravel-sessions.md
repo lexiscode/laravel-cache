@@ -1,22 +1,5 @@
 ## Sessions in Laravel
 
-The following documentation is based on my [Laravel Sessions for Beginners](https://www.youtube.com/watch?v=UjA-16diixc) tutorial we’re going to cover the basics of sessions in Laravel. <br> <br>
-•	Author: [Code With Dary](https://github.com/codewithdary) <br>
-•	Twitter: [@codewithdary](https://twitter.com/codewithdary) <br>
-•	Instagram: [@codewithdary](https://www.instagram.com/codewithdary/) <br>
-
-## Usage <br>
-Setup your coding environment <br>
-```
-git clone git@github.com:codewithdary/laravel8-tailwindcss2.git
-cd laravel8-tailwindcss2
-composer install
-cp .env.example .env 
-php artisan key:generate
-php artisan cache:clear && php artisan config:clear 
-php artisan serve 
-```
-
 ## Database Setup <br>
 We will be performing database tests which (obviously) needs to interact with the database. Make sure that your database credentials are up and running.
 ```
@@ -42,25 +25,57 @@ php artisan migrate
 
 ## Session Configuration
 
-When a user interacts with your web application, data needs to be stored temporary. In most cases, it will be done in a session.
+In Laravel, sessions provide a way to store information about the user across multiple requests. Laravel makes it easy to work with sessions through the use of a powerful session handling system. When a user interacts with your web application, data needs to be stored temporary. In most cases, it will be done in a session.
 
 A session allows you to store states between page requests. An example might be a product page. When you store a value from the product page inside a session, you can access that session in the shopping cart.
 
-All your session settings and drivers are stored in the ```/config/session.php``` file. The first thing you’ll notice right here is that you have the option to change up your ```SESSION_DRIVER```. This might seem odd, but you can actually choose between the following drivers: <br>
-•	File (Default) <br> 
-•	Cookie <br>
-•	Database <br>
-•	Memcached <br>
-•	Redit <br>
-•	Amazon Web Service <br>
-•	DynamoDB <br>
-•	Basic array <br>
+All your session settings and drivers are stored in the ```/config/session.php``` file. The first thing you’ll notice right here is that you have the option to change up your ```SESSION_DRIVER```.<br>
+
+The choice of session driver in Laravel depends on the specific requirements and constraints of your application. Laravel supports various session drivers, each with its own advantages and considerations. The commonly used session drivers are:
+
+1. **File Session Driver:**
+   - **Driver Configuration:** `'driver' => 'file'`
+   - **Storage Location:** `storage/framework/sessions`
+   - **Advantages:** Simple setup, no external dependencies.
+   - **Considerations:** May not be suitable for high-traffic applications, especially when using multiple web servers, as it relies on the file system.
+
+2. **Database Session Driver:**
+   - **Driver Configuration:** `'driver' => 'database'`
+   - **Advantages:** Sessions are stored in a database, making it suitable for distributed environments. Allows for easier scaling.
+   - **Considerations:** Requires a database connection. Considered slower than other drivers, especially for applications with a large number of requests.
+
+3. **Redis Session Driver:**
+   - **Driver Configuration:** `'driver' => 'redis'`
+   - **Advantages:** Fast and efficient. Suitable for high-traffic applications and distributed environments. Can be used for other caching needs as well.
+   - **Considerations:** Requires a Redis server, which adds an external dependency.
+
+4. **Memcached Session Driver:**
+   - **Driver Configuration:** `'driver' => 'memcached'`
+   - **Advantages:** Fast and efficient, similar to Redis. Suitable for high-traffic applications.
+   - **Considerations:** Requires a Memcached server. Like Redis, it adds an external dependency.
+
+5. **Array Session Driver:**
+   - **Driver Configuration:** `'driver' => 'array'`
+   - **Advantages:** Stores sessions in a PHP array, which is useful for testing or simple applications.
+   - **Considerations:** Sessions are lost when the application is restarted. Not suitable for production use in most cases.
+
+### Recommendations:
+
+- **File Driver:** Simple and suitable for small to medium-sized applications with a single server.
+
+- **Database Driver:** Suitable for applications that already use a database extensively and need a scalable solution.
+
+- **Redis or Memcached Driver:** Recommended for high-traffic applications or those that require distributed session management.
+
+When choosing a session driver, consider factors such as ease of setup, scalability, performance, and any existing infrastructure you might have in place. Additionally, consider your hosting environment and whether it supports the required dependencies (e.g., a Redis or Memcached server).
+
+Ultimately, the best choice depends on your specific use case and requirements. It's often a good idea to test and benchmark different drivers in your specific environment to determine the most suitable one for your application.
 
 Another interesting setting is the ```encrypt```. You can choose whether you want to encrypt your session data or not. BY default, it’s always turned off. If you’re working with sentive data inside your sessions, you can set the value equal to ```true```.
 
 ## Creating our first session
 
-I’ve created a new controller called ```PagesController``` and I’ve setup two methods and routes called ```index``` and ```about```. 
+I’ve created a new controller called ```PageController``` and I’ve setup two methods and routes called ```index``` and ```about```. 
 
 ```ruby
 public function index()
@@ -74,7 +89,18 @@ public function about()
 }
 ```
 
-You can define a session through the Session Facade or the global session helper. I prefer to use the Session Facade so that’s what we’re going to use in this tutorial.
+You can define a session through the Session Facade or the global session helper. I prefer to use the Session Facade so that’s what we’re going to use in this tutorial. Using the session facade:
+
+```ruby
+// Store a value in the session
+Session::put('key', 'value');
+
+// Retrieve a value from the session
+$value = Session::get('key');
+
+// Store multiple values in the session
+Session::put(['key1' => 'value1', 'key2' => 'value2']);
+```
 
 The two most common methods are ```get()``` and ```put()```. The ```put()``` method allows you to save data, and it accepts two parameters. The first one will be the key, and the second parameter will be the value. The second parameter can also be an array with multiple values.
 ```ruby
@@ -126,9 +152,9 @@ Session::all();
 ```
 
 ### Session::forget($key) & Session::flush()
-```forget()``` removes a previously set session value and the ```flush()``` method removes every session value, even those set by the framework.
+```forget()``` removes a previously set session value or using ```pull()``` which retrieve and remove a value from the session; while the ```flush()``` method removes every session value, even those set by the framework.
 ```ruby
-Session::forget('name');
+Session::forget('name'); or Session::pull('name');
 Session::flush();
 ```
 
@@ -211,5 +237,55 @@ SELECT * FROM sessions;
 
 Inside MySQL, you’ll see a new session!
 
-# Credits due where credits due…
-Thanks to [Laravel](https://laravel.com/) for giving me the opportunity to make this tutorial on [Sessions](https://laravel.com/docs/8.x/session).
+
+## How to store session in file
+
+In Laravel, storing sessions in files is the default configuration. By default, Laravel uses the file session driver, which stores session data as files on the server. If you haven't changed the session driver configuration, you are likely already using file-based sessions.
+
+Here's a quick guide to verify and set up file-based sessions:
+
+### Verify Session Driver:
+
+1. Open your `config/session.php` file.
+
+2. Check that the `'driver'` option is set to `'file'`:
+
+    ```php
+    'driver' => env('SESSION_DRIVER', 'file'),
+    ```
+
+    The default configuration uses the `'file'` driver.
+
+### Optional: Set the Session Lifetime:
+
+You can also set the session lifetime in the same configuration file. The `lifetime` option determines how long, in minutes, the session should be considered valid:
+
+```php
+'lifetime' => env('SESSION_LIFETIME', 120),
+```
+
+### Additional Configuration (Optional):
+
+If you want to change the default session storage path, you can modify the `'files'` option:
+
+```php
+'files' => storage_path('framework/sessions'),
+```
+
+### Using the Session:
+
+Now, you can use the `session` helper or the `Session` facade to interact with sessions:
+
+```php
+// Store a value in the session
+session(['key' => 'value']);
+
+// Retrieve a value from the session
+$value = session('key');
+```
+
+Laravel will automatically use the file session driver to store and retrieve session data based on the configuration.
+
+By default, sessions are stored in the `storage/framework/sessions` directory. If you want to change this path, update the `'files'` option in the `config/session.php` file.
+
+Keep in mind that file-based sessions are suitable for many applications, especially those running on a single server. If you are scaling your application horizontally across multiple servers, you might want to consider using a different session driver, such as the database, Redis, or Memcached driver, to ensure sessions are shared across all instances.
