@@ -63,10 +63,53 @@ class NewsletterController extends Controller
 Next, go to the routes/web.php:
 
 ```ruby
-<?php
+Route::get('/', [NewsController::class, 'index']);
+```
 
+Next, another thing we need to create is our index.blade.php file inside our views, navigate to resources/views/index.blade.php:
+
+```ruby
+<html>
+<head>
+    <title>Document</title>
+    <link rel="stylesheet" href="{{ mix('css/app.css') }}">
+</head>
+<body>
+    <h1> Newsletter </h1>
+    <form action="/subscribe" method="post">
+        @crsf
+        <input type="text" name="email" placeholder="Enter your email address here...">
+        <button type="submit">Subscribe</button>
+    </form>
+</body>
+<html>
+```
+
+Now looking at the html document inside our view file, obviously we will need another route and an extra method inside our NewsletterController. Therefore, we will update our routes/web.php file:
+
+```ruby
+Route::get('/', [NewsController::class, 'index']);
+Route::post('/subscribe', [NewsController::class, 'subscribe']);
+```
+
+Then this will be our updated NewsController code file:
+
+```ruby
+<?php
 ...
 
-Route::get('/', [NewsController::class, 'index']);
+class NewsletterController extends Controller
+{
+    public function index()
+    {
+        return view('index.blade.php');
+    }
 
+    public function subscribe()
+    {
+        // brb, we will add something here soon
+    }
+}
 ```
+
+
