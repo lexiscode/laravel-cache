@@ -1,4 +1,2 @@
-In Laravel, events and listeners provide a way to decouple various components of your application. Events are used to notify other parts 
-of your application when a certain action or occurrence takes place, while listeners are responsible for handling those events.
-
+f
 
